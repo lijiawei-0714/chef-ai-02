@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>味道厨房 - 用心烹饪，品味生活</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">🍳 味道厨房</a>
+            <ul class="nav-links">
+                <li><a href="#home" class="nav-link active">首页</a></li>
+                <li><a href="#ingredients" class="nav-link">食材百科</a></li>
+                <li><a href="#recipes" class="nav-link">食谱大全</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 首页横幅 -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>用心烹饪，品味生活</h1>
+            <p>从食材到餐桌，让每一道菜都充满爱与温度</p>
+            <a href="#recipes" class="hero-btn">探索食谱</a>
+            <div class="hero-stats">
+                <div class="stat"><span class="stat-num">30+</span><span class="stat-label">食材百科</span></div>
+                <div class="stat"><span class="stat-num">214</span><span class="stat-label">精选食谱</span></div>
+                <div class="stat"><span class="stat-num">9</span><span class="stat-label">美食分类</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 食材百科 -->
+    <section class="section" id="ingredients">
+        <div class="container">
+            <h2 class="section-title">🥬 食材百科</h2>
+            <p class="section-desc">了解常见食材的营养价值、保存方法与选购技巧</p>
+            <div class="ingredient-filter">
+                <button class="filter-btn active" onclick="filterIngredients('all')">全部</button>
+                <button class="filter-btn" onclick="filterIngredients('蔬菜')">蔬菜</button>
+                <button class="filter-btn" onclick="filterIngredients('肉类')">肉类</button>
+                <button class="filter-btn" onclick="filterIngredients('海鲜')">海鲜</button>
+                <button class="filter-btn" onclick="filterIngredients('蛋奶')">蛋奶</button>
+                <button class="filter-btn" onclick="filterIngredients('谷物')">谷物</button>
+                <button class="filter-btn" onclick="filterIngredients('调味料')">调味料</button>
+            </div>
+            <div class="ingredient-grid" id="ingredientGrid"></div>
+        </div>
+    </section>
+
+    <!-- 食谱大全 -->
+    <section class="section section-alt" id="recipes">
+        <div class="container">
+            <h2 class="section-title">📖 食谱大全</h2>
+            <p class="section-desc">精选200+道家常美食，步骤详细，简单易学</p>
+            <div class="search-bar">
+                <input type="text" id="recipeSearch" placeholder="搜索食谱名称或食材..." oninput="filterRecipes()">
+            </div>
+            <div class="category-tabs" id="categoryTabs"></div>
+            <div class="recipe-count" id="recipeCount"></div>
+            <div class="recipe-grid" id="recipeGrid"></div>
+        </div>
+    </section>
+
+    <!-- 详情弹窗 -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal" id="modal">
+            <button class="modal-close" onclick="hideModal()">&times;</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <p>🍳 味道厨房 &copy; 2026 | 用心烹饪，品味生活</p>
+            <p class="footer-tip">每天一道家常菜，让生活更有滋味</p>
+        </div>
+    </footer>
+
+    <!-- AI 私厨侧边栏 -->
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="私厨小助">
+        <span class="toggle-icon">🤖</span>
+    </button>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">
+                <span class="sidebar-avatar">🤖</span>
+                <div>
+                    <h3>私厨小助</h3>
+                    <span class="sidebar-status">在线 · AI 智能助手</span>
+                </div>
+            </div>
+            <button class="sidebar-close" onclick="toggleSidebar()" title="关闭">&times;</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-message ai">
+                <div class="message-avatar">🤖</div>
+                <div class="message-body">
+                    <p>你好！我是<strong>私厨小助</strong>，你的 AI 烹饪助手。</p>
+                    <p>我可以帮你：</p>
+                    <ul>
+                        <li>🍽️ 推荐菜谱和食材搭配</li>
+                        <li>👨‍🍳 分享烹饪技巧</li>
+                        <li>🥗 提供健康饮食建议</li>
+                    </ul>
+                    <p>试试问我：“冰箱里有西红柿和鸡蛋，能做什么菜？”</p>
+                </div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <textarea id="chatInput" placeholder="输入你的烹饪问题..." rows="1" onkeydown="handleChatKeydown(event)"></textarea>
+            <button class="chat-send" id="chatSend" onclick="sendMessage()" title="发送">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
+            </button>
+        </div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script src="chat.js"></script>
+</body>
+</html>
