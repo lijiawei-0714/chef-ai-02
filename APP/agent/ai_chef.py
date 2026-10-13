@@ -22,7 +22,7 @@ load_dotenv()
 # 确保 LangSmith 追踪环境变量已设置
 os.environ["LANGCHAIN_TRACING_V2"] = os.getenv("LANGSMITH_TRACING_V2", "true")
 os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGSMITH_API_KEY", "")
-os.environ["LANGCHAIN_PROJECT"] = os.getenv("LANGSMITH-PROJECT", "AI-SICHU")
+os.environ["LANGCHAIN_PROJECT"] = os.getenv("LANGSMITH_PROJECT", "AI-SICHU")
 
 # 打印 LangSmith 配置状态
 if os.getenv("LANGSMITH_API_KEY"):
@@ -108,6 +108,7 @@ workflow.add_edge("tools", "agent")  # 工具执行完成后返回智能体节�
 # ==================== 5.5 记忆管理配置 ====================
 # 使用 SQLite 数据库保存对话历史
 import sqlite3
+import atexit
 memory_db_path = os.path.join(os.path.dirname(__file__), "chat_memory.db")
 print(f" 记忆数据库路径: {memory_db_path}")
 
@@ -115,6 +116,9 @@ print(f" 记忆数据库路径: {memory_db_path}")
 sqlite_conn = sqlite3.connect(memory_db_path, check_same_thread=False)
 memory = SqliteSaver(sqlite_conn)
 print("✅ 记忆管理已启用（SQLite 持久化）")
+
+# 注册退出时关闭数据库连接
+atexit.register(sqlite_conn.close)
 
 # 编译图（启用记忆）
 app = workflow.compile(checkpointer=memory)

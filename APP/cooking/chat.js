@@ -100,13 +100,19 @@ function formatMessage(text) {
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
 
-    // 简单的 Markdown 支持
-    // 粗体
-    html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-    // 列表
-    html = html.replace(/^- (.+)$/gm, "<li>$1</li>");
-    html = html.replace(/(<li>.*<\/li>)/s, "<ul>$1</ul>");
-    // 换行
+    // 代码块 ```code```
+    html = html.replace(/```([\s\S]*?)```/g, '<pre style="background:#f5f5f5;padding:8px 12px;border-radius:6px;overflow-x:auto;font-size:0.9em;"><code>$1</code></pre>');
+    // 行内代码 `code`
+    html = html.replace(/`([^`]+)`/g, '<code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:0.9em;">$1</code>');
+    // 粗体 **text**
+    html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    // 斜体 *text*
+    html = html.replace(/\*(.+?)\*/g, "<em>$1</em>");
+    // 有序列表 1. text
+    html = html.replace(/^\d+\.\s+(.+)$/gm, '<li style="margin-left:20px;">$1</li>');
+    // 无序列表 - text
+    html = html.replace(/^-\s+(.+)$/gm, '<li style="margin-left:20px;list-style-type:disc;">$1</li>');
+    // 换行（保留代码块内的换行）
     html = html.replace(/\n/g, "<br>");
 
     // 包裹在段落中

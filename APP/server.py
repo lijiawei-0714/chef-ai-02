@@ -4,6 +4,7 @@
 import sys
 import os
 import uuid
+import time
 from pathlib import Path
 
 # 将 agent 目录加入 Python 路径
@@ -15,14 +16,26 @@ from flask_cors import CORS
 
 # 导入 AI 私厨智能体
 # noinspection PyUnresolvedReferences
-from ai私厨 import run_agent  # noqa: F401
+from ai_chef import run_agent  # noqa: F401
 
 # ==================== Flask 应用配置 ====================
 app = Flask(__name__, static_folder="cooking")
 CORS(app)
 
 # 存储用户会话（简单实现，生产环境应使用 Redis 等）
+# 格式: {session_id: {"created_at": timestamp, "thread_id": str}}
 sessions = {}
+SESSION_TTL = 3600  # 会话有效期 1 小时
+
+
+def _cleanup_expired_sessions():
+    """清理过期会话"""
+    now = time.time()
+    expired = [sid for sid, info in sessions.items() if now - info["created_at"] > SESSION_TTL]
+    for sid in expired:
+        del sessions[sid]
+    if expired:
+        print(f"🧹 清理了 {len(expired)} 个过期会话")
 
 
 # ==================== 静态文件服务 ====================
@@ -53,10 +66,19 @@ def chat():
             return jsonify({"error": "请提供消息内容"}), 400
 
         user_message = data["message"].strip()
-        session_id = data.get("session_id", str(uuid.uuid4()))
+        session_id = data.get("session_id", "")
+        if not session_id or session_id not in sessions:
+            session_id = str(uuid.uuid4())
+            sessions[session_id] = {"created_at": time.time()}
+        else:
+            sessions[session_id]["created_at"] = time.time()  # 续期
 
         if not user_message:
             return jsonify({"error": "消息不能为空"}), 400
+
+        # 定期清理过期会话
+        if len(sessions) > 100:
+            _cleanup_expired_sessions()
 
         # 调用 AI 智能体
         reply = run_agent(user_message, debug=False, thread_id=session_id)
@@ -85,4 +107,5 @@ if __name__ == "__main__":
     print("🌐 访问地址: http://localhost:5000")
     print("📁 静态文件目录:", app.static_folder)
     print("=" * 50)
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    debug_mode = os.getenv("FLASK_DEBUG", "false").lower() == "true"
+    app.run(host="0.0.0.0", port=5000, debug=debug_mode)
