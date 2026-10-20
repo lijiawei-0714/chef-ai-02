@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - 页面未找到 | 味道厨房</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #FFF0EE 0%, #FFF8F0 50%, #EDF7F2 100%);
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            color: #2D3748;
+        }
+        .error-container {
+            text-align: center; padding: 40px 20px; max-width: 500px;
+        }
+        .error-emoji {
+            font-size: 6rem; margin-bottom: 20px; animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .error-code {
+            font-size: 8rem; font-weight: 800; color: #E85D4A;
+            line-height: 1; margin-bottom: 10px;
+            text-shadow: 2px 4px 0 rgba(232,93,74,0.15);
+        }
+        .error-title {
+            font-size: 1.6rem; font-weight: 600; margin-bottom: 12px; color: #2D3748;
+        }
+        .error-desc {
+            font-size: 1rem; color: #718096; line-height: 1.7; margin-bottom: 36px;
+        }
+        .error-actions {
+            display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-block; padding: 14px 32px; border-radius: 50px;
+            font-size: 0.95rem; font-weight: 600; text-decoration: none;
+            transition: all 0.3s ease; cursor: pointer; border: none;
+        }
+        .btn-primary {
+            background: #E85D4A; color: #fff;
+            box-shadow: 0 4px 14px rgba(232,93,74,0.3);
+        }
+        .btn-primary:hover {
+            background: #C94A3A; transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(232,93,74,0.4);
+        }
+        .btn-outline {
+            background: #fff; color: #E85D4A;
+            border: 1.5px solid #E85D4A;
+        }
+        .btn-outline:hover {
+            background: #FFF0EE; transform: translateY(-2px);
+        }
+        .error-footer {
+            margin-top: 48px; font-size: 0.85rem; color: #A0AEC0;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-emoji">🍳</div>
+        <div class="error-code">404</div>
+        <h1 class="error-title">这道菜还没学会呢</h1>
+        <p class="error-desc">
+            抱歉，你访问的页面不存在或已被移除。<br>
+            不如回厨房看看我们的精选食谱吧！
+        </p>
+        <div class="error-actions">
+            <a href="/" class="btn btn-primary">🏠 回到首页</a>
+            <a href="/#recipes" class="btn btn-outline">📖 浏览食谱</a>
+        </div>
+        <div class="error-footer">
+            🍳 味道厨房 &copy; 2026 | 用心烹饪，品味生活
+        </div>
+    </div>
+</body>
+</html>

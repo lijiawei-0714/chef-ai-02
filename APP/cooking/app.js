@@ -2,6 +2,32 @@
 let currentCategory = '全部';
 let currentIngredientFilter = 'all';
 let searchKeyword = '';
+let displayCount = 12;           // 当前显示的食谱数量
+const LOAD_MORE_STEP = 12;       // 每次加载更多的数量
+
+// ===== Toast 通知组件 =====
+function showToast(message, type = 'info', duration = 3000) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+
+    const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+    const icon = icons[type] || icons.info;
+
+    toast.innerHTML = `
+        <span class="toast-icon">${icon}</span>
+        <span class="toast-text">${message}</span>
+        <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+    `;
+
+    container.appendChild(toast);
+
+    // 自动消失
+    setTimeout(() => {
+        toast.style.animation = 'toastOut 0.3s ease forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
 
 // ===== 分类配置 =====
 const categories = ['全部', '凉菜', '热菜', '荤菜', '汤羹', '主食', '小吃', '甜品', '酱料', '饮品'];
@@ -10,10 +36,55 @@ const categoryEmojis = { '全部': '🍽️', '凉菜': '🥗', '热菜': '🔥'
 // ===== 初始化 =====
 document.addEventListener('DOMContentLoaded', () => {
     renderCategoryTabs();
-    renderIngredients();
-    renderRecipes();
+    // 先显示骨架屏
+    showSkeletons();
+    // 模拟数据加载延迟后渲染实际内容
+    setTimeout(() => {
+        renderIngredients();
+        renderRecipes();
+    }, 400);
     initNavScroll();
+    initBackToTop();
 });
+
+// ===== 骨架屏 Loading =====
+function showSkeletons() {
+    // 食材骨架屏
+    const ingredientGrid = document.getElementById('ingredientGrid');
+    ingredientGrid.innerHTML = Array(6).fill(`
+        <div class="skeleton-ingredient">
+            <div class="skeleton-ingredient-inner">
+                <div class="skeleton skeleton-tag"></div>
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-text"></div>
+            </div>
+        </div>
+    `).join('');
+
+    // 食谱骨架屏
+    const recipeGrid = document.getElementById('recipeGrid');
+    recipeGrid.innerHTML = Array(8).fill(`
+        <div class="skeleton-card">
+            <div class="skeleton-card-header">
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-tag"></div>
+            </div>
+            <div class="skeleton-card-body">
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text"></div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ===== 防抖函数 =====
+function debounce(fn, delay) {
+    let timer = null;
+    return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+}
 
 // ===== 导航栏滚动高亮 =====
 function initNavScroll() {
@@ -31,6 +102,30 @@ function initNavScroll() {
     });
 }
 
+// ===== 移动端汉堡菜单 =====
+function toggleNavMenu() {
+    document.getElementById('navLinks').classList.toggle('show');
+}
+
+// 点击导航链接后关闭菜单
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('nav-link')) {
+        document.getElementById('navLinks').classList.remove('show');
+    }
+});
+
+// ===== 回到顶部按钮 =====
+function initBackToTop() {
+    const btn = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+        btn.classList.toggle('show', window.scrollY > 400);
+    });
+}
+
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 // ===== 渲染分类标签 =====
 function renderCategoryTabs() {
     const container = document.getElementById('categoryTabs');
@@ -40,22 +135,31 @@ function renderCategoryTabs() {
 }
 
 // ===== 选择分类 =====
-function selectCategory(cat) {
+function selectCategory(cat, scrollToRecipes = false) {
     currentCategory = cat;
+    displayCount = 12;
     renderCategoryTabs();
     renderRecipes();
+    if (scrollToRecipes) {
+        document.getElementById('recipes').scrollIntoView({ behavior: 'smooth' });
+    }
 }
 
 // ===== 渲染食材卡片 =====
 function renderIngredients(filter) {
     const container = document.getElementById('ingredientGrid');
     let data = ingredients;
+    let indices = ingredients.map((_, i) => i);
     if (filter && filter !== 'all') {
-        data = ingredients.filter(ing => ing.tag === filter);
+        indices = [];
+        data = ingredients.filter((ing, i) => {
+            if (ing.c === filter) { indices.push(i); return true; }
+            return false;
+        });
     }
     container.innerHTML = data.map((ing, idx) =>
-        `<div class="ingredient-card" onclick="showIngredient(${ingredients.indexOf(ing)})">
-            <span class="tag">${ing.tag}</span>
+        `<div class="ingredient-card" onclick="showIngredient(${indices[idx]})">
+            <span class="tag">${ing.c}</span>
             <h3>${ing.n}</h3>
             <p>${ing.desc}</p>
         </div>`
@@ -71,25 +175,37 @@ function filterIngredients(cat) {
     renderIngredients(cat);
 }
 
+// ===== 从页脚跳转到指定分类 =====
+function goToCategory(cat) {
+    selectCategory(cat, true);
+}
+
 // ===== 渲染食谱卡片 =====
 function renderRecipes() {
     const container = document.getElementById('recipeGrid');
     const countEl = document.getElementById('recipeCount');
     let data = recipes;
+    let indices = recipes.map((_, i) => i);
 
-    // 分类筛选
     if (currentCategory !== '全部') {
-        data = data.filter(r => r.c === currentCategory);
+        indices = [];
+        data = recipes.filter((r, i) => {
+            if (r.c === currentCategory) { indices.push(i); return true; }
+            return false;
+        });
     }
 
-    // 搜索筛选
     if (searchKeyword) {
         const kw = searchKeyword.toLowerCase();
-        data = data.filter(r =>
-            r.n.toLowerCase().includes(kw) ||
-            r.i.toLowerCase().includes(kw) ||
-            r.c.toLowerCase().includes(kw)
-        );
+        const filteredIndices = [];
+        data = data.filter((r, idx) => {
+            if (r.n.toLowerCase().includes(kw) || r.i.toLowerCase().includes(kw) || r.c.toLowerCase().includes(kw)) {
+                filteredIndices.push(indices[idx]);
+                return true;
+            }
+            return false;
+        });
+        indices = filteredIndices;
     }
 
     countEl.textContent = `共 ${data.length} 道食谱`;
@@ -99,25 +215,35 @@ function renderRecipes() {
         return;
     }
 
-    container.innerHTML = data.map((r, idx) =>
-        `<div class="recipe-card" onclick="showRecipe(${recipes.indexOf(r)})">
+    const displayData = data.slice(0, displayCount);
+    const hasMore = displayCount < data.length;
+
+    container.innerHTML = displayData.map((r, idx) => {
+        const emoji = categoryEmojis[r.c] || '🍽️';
+        return `<div class="recipe-card" onclick="showRecipe(${indices[idx]})">
             <div class="recipe-card-header">
-                <h3>${r.n}</h3>
+                <h3>${emoji} ${r.n}</h3>
                 <span class="cat-label">${categoryEmojis[r.c] || ''} ${r.c}</span>
             </div>
             <div class="recipe-card-body">
                 <div class="ingredients-preview">🧂 ${r.i}</div>
                 <div class="steps-count">📝 ${r.s.length} 个步骤 · 点击查看详情</div>
             </div>
-        </div>`
-    ).join('');
+        </div>`;
+    }).join('') + (hasMore ? `<div class="load-more-wrap"><button class="load-more-btn" onclick="loadMoreRecipes()">加载更多（还有 ${data.length - displayCount} 道）</button></div>` : '');
 }
 
-// ===== 搜索食谱 =====
-function filterRecipes() {
-    searchKeyword = document.getElementById('recipeSearch').value.trim();
+function loadMoreRecipes() {
+    displayCount += LOAD_MORE_STEP;
     renderRecipes();
 }
+
+// ===== 搜索食谱（防抖） =====
+const filterRecipes = debounce(function() {
+    searchKeyword = document.getElementById('recipeSearch').value.trim();
+    displayCount = 12;
+    renderRecipes();
+}, 250);
 
 
 // ===== 显示食谱详情 =====
@@ -146,7 +272,7 @@ function showIngredient(idx) {
     const content = document.getElementById('modalContent');
     content.innerHTML = `
         <h2>${ing.n}</h2>
-        <span class="modal-cat" style="background:var(--green-light);color:var(--green);">${ing.tag}</span>
+        <span class="modal-cat" style="background:var(--green-light);color:var(--green);">${ing.c}</span>
         <p style="margin:12px 0;color:var(--text-light);font-size:1rem;">${ing.desc}</p>
         <div class="info-block">
             <h4>📊 营养价值</h4>

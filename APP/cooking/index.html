@@ -2,8 +2,26 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>味道厨房 - 用心烹饪，品味生活</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>味道厨房 - 用心烹饪，品味生活 | AI 私厨智能助手</title>
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="味道厨房提供200+道精选家常食谱和30+种食材百科，更有AI私厨智能助手为你推荐菜谱、分享烹饪技巧。从食材到餐桌，让每一道菜都充满爱与温度。">
+    <meta name="keywords" content="菜谱,食谱,家常菜做法,烹饪技巧,AI私厨,食材百科,美食,厨房,做菜,烹饪">
+    <meta name="author" content="味道厨房">
+    <meta name="robots" content="index, follow">
+    <!-- Open Graph / 社交媒体分享 -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="味道厨房 - 用心烹饪，品味生活">
+    <meta property="og:description" content="200+道精选家常食谱，30+种食材百科，AI私厨智能助手为你推荐菜谱、分享烹饪技巧。">
+    <meta property="og:site_name" content="味道厨房">
+    <meta property="og:locale" content="zh_CN">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="味道厨房 - 用心烹饪，品味生活">
+    <meta name="twitter:description" content="200+道精选家常食谱，AI私厨智能助手，让每一道菜都充满爱与温度。">
+    <!-- 主题色 -->
+    <meta name="theme-color" content="#E85D4A">
+    <link rel="icon" type="image/png" href="favicon.png">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,10 +29,12 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="#" class="logo">🍳 味道厨房</a>
-            <ul class="nav-links">
+            <button class="nav-toggle" id="navToggle" onclick="toggleNavMenu()" aria-label="菜单">☰</button>
+            <ul class="nav-links" id="navLinks">
                 <li><a href="#home" class="nav-link active">首页</a></li>
                 <li><a href="#ingredients" class="nav-link">食材百科</a></li>
                 <li><a href="#recipes" class="nav-link">食谱大全</a></li>
+                <li><a href="javascript:void(0)" class="nav-link nav-ai" onclick="toggleSidebar()">🤖 AI 私厨</a></li>
             </ul>
         </div>
     </nav>
@@ -57,7 +77,7 @@
             <h2 class="section-title">📖 食谱大全</h2>
             <p class="section-desc">精选200+道家常美食，步骤详细，简单易学</p>
             <div class="search-bar">
-                <input type="text" id="recipeSearch" placeholder="搜索食谱名称或食材..." oninput="filterRecipes()">
+                <input type="text" id="recipeSearch" placeholder="搜索食谱名称或食材..." oninput="filterRecipes()" inputmode="search" autocomplete="off">
             </div>
             <div class="category-tabs" id="categoryTabs"></div>
             <div class="recipe-count" id="recipeCount"></div>
@@ -76,10 +96,47 @@
     <!-- 页脚 -->
     <footer class="footer">
         <div class="container">
-            <p>🍳 味道厨房 &copy; 2026 | 用心烹饪，品味生活</p>
-            <p class="footer-tip">每天一道家常菜，让生活更有滋味</p>
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>🍳 味道厨房</h3>
+                    <p class="footer-slogan">用心烹饪，品味生活</p>
+                    <p class="footer-desc">从食材到餐桌，让每一道菜都充满爱与温度。我们提供精选食谱、食材百科和 AI 智能助手，助你轻松掌握烹饪乐趣。</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-col">
+                        <h4>快速导航</h4>
+                        <a href="#home">首页</a>
+                        <a href="#ingredients">食材百科</a>
+                        <a href="#recipes">食谱大全</a>
+                        <a href="javascript:void(0)" onclick="toggleSidebar()">AI 私厨</a>
+                    </div>
+                    <div class="footer-col">
+                        <h4>热门分类</h4>
+                        <a href="javascript:void(0)" onclick="goToCategory('热菜')">热菜</a>
+                        <a href="javascript:void(0)" onclick="goToCategory('凉菜')">凉菜</a>
+                        <a href="javascript:void(0)" onclick="goToCategory('汤羹')">汤羹</a>
+                        <a href="javascript:void(0)" onclick="goToCategory('主食')">主食</a>
+                    </div>
+                    <div class="footer-col">
+                        <h4>关于我们</h4>
+                        <a href="javascript:void(0)" onclick="showToast('功能开发中，敬请期待！', 'info')">使用帮助</a>
+                        <a href="javascript:void(0)" onclick="showToast('功能开发中，敬请期待！', 'info')">隐私政策</a>
+                        <a href="javascript:void(0)" onclick="showToast('功能开发中，敬请期待！', 'info')">联系我们</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>🍳 味道厨房 &copy; 2026 | 用心烹饪，品味生活</p>
+                <p class="footer-tip">每天一道家常菜，让生活更有滋味</p>
+            </div>
         </div>
     </footer>
+
+    <!-- 回到顶部按钮 -->
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()" title="回到顶部">↑</button>
+
+    <!-- Toast 通知容器 -->
+    <div class="toast-container" id="toastContainer"></div>
 
     <!-- AI 私厨侧边栏 -->
     <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="私厨小助">
@@ -95,6 +152,17 @@
                 </div>
             </div>
             <button class="sidebar-close" onclick="toggleSidebar()" title="关闭">&times;</button>
+        </div>
+        <div class="sidebar-new-chat">
+            <button onclick="startNewChat()">✨ 新建对话</button>
+        </div>
+        <!-- 历史对话面板 -->
+        <div class="history-panel" id="historyPanel">
+            <div class="history-header">
+                <span>📋 历史对话</span>
+                <button class="history-clear" onclick="clearAllHistory()" title="清空历史">️</button>
+            </div>
+            <div class="history-list" id="historyList"></div>
         </div>
         <div class="chat-messages" id="chatMessages">
             <div class="chat-message ai">
